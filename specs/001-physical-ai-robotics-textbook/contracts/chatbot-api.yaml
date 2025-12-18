@@ -1,0 +1,558 @@
+openapi: 3.0.3
+info:
+  title: Physical AI Textbook Chatbot API
+  description: |
+    REST API for RAG-based chatbot supporting context-aware Q&A for Physical AI & Humanoid Robotics textbook.
+
+    **Key Features:**
+    - Context-specific retrieval (full textbook, module-level, or chapter-level)
+    - Citation-backed responses with source links
+    - Session-based conversation history
+    - <3s response time goal (SC-002)
+
+    **Architecture:**
+    - Frontend: Docusaurus + ChatKit.js
+    - Backend: FastAPI + OpenAI Agents SDK + ChatKit Python SDK
+    - Storage: Qdrant (vectors), Neon Postgres (chat history)
+  version: 1.0.0
+  contact:
+    name: API Support
+    url: https://github.com/your-repo/issues
+
+servers:
+  - url: https://api.example.com/v1
+    description: Production server (Render deployment)
+  - url: http://localhost:8000/v1
+    description: Local development server
+
+tags:
+  - name: chat
+    description: Chat conversation endpoints
+  - name: context
+    description: Context selection endpoints
+  - name: sessions
+    description: Session management endpoints
+
+paths:
+  /chat:
+    post:
+      tags: [chat]
+      summary: Send a message and get chatbot response
+      description: |
+        Submit a user query and receive an AI-generated response with citations.
+        Creates a new session if `session_id` not provided.
+
+        **Response Time:** Target <3s (SC-002)
+        **Context Filtering:** Uses session's `context_selection` to filter retrieval
+        **Citations:** All responses include source references (FR-020)
+      operationId: sendMessage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+            examples:
+              newSession:
+                summary: New session with full textbook context
+                value:
+                  session_id: null
+                  message: "How do I create a ROS 2 publisher in Python?"
+                  context:
+                    mode: "full_textbook"
+                    selected_module_ids: []
+                    selected_chapter_ids: []
+              existingSession:
+                summary: Existing session with module context
+                value:
+                  session_id: "7c9e6679-7425-40de-944b-e07fc1f90ae7"
+                  message: "Can you show me an example?"
+                  context:
+                    mode: "module"
+                    selected_module_ids: ["module-01-ros2"]
+                    selected_chapter_ids: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+              examples:
+                success:
+                  value:
+                    session_id: "7c9e6679-7425-40de-944b-e07fc1f90ae7"
+                    message: "To create a ROS 2 publisher in Python, use `rclpy.create_publisher()`...\n\n📚 **Sources:**\n• [ROS 2 Nodes and Topics: Creating a Publisher Node](/docs/module-01-ros2/week-03/ch01-nodes-topics#creating-a-publisher-node)"
+                    citations:
+                      - chapter_title: "ROS 2 Nodes and Topics"
+                        heading: "Creating a Publisher Node"
+                        url: "/docs/module-01-ros2/week-03/ch01-nodes-topics#creating-a-publisher-node"
+                        chunk_preview: "To create a publisher, use rclpy.create_publisher()..."
+                    response_time_ms: 2850
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /context/modules:
+    get:
+      tags: [context]
+      summary: List all modules
+      description: |
+        Retrieve all textbook modules for context selection UI.
+        Used by ChatbotWidget to populate module selector dropdown.
+      operationId: listModules
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  modules:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ModuleSummary'
+              examples:
+                success:
+                  value:
+                    modules:
+                      - id: "module-01-ros2"
+                        name: "ROS 2 - Robotic Nervous System"
+                        chapter_count: 6
+                        week_range: "3-5"
+                      - id: "module-02-digital-twin"
+                        name: "Digital Twin & Simulation"
+                        chapter_count: 4
+                        week_range: "6-7"
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /context/chapters:
+    get:
+      tags: [context]
+      summary: List chapters (optionally filtered by module)
+      description: |
+        Retrieve chapters for context selection UI.
+        If `module_id` provided, returns only chapters in that module.
+        Otherwise, returns all chapters.
+      operationId: listChapters
+      parameters:
+        - name: module_id
+          in: query
+          description: Filter chapters by module ID
+          required: false
+          schema:
+            type: string
+            example: "module-01-ros2"
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  chapters:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ChapterSummary'
+              examples:
+                success:
+                  value:
+                    chapters:
+                      - id: "module-01-ros2/week-03/ch01-nodes-topics"
+                        title: "ROS 2 Nodes and Topics"
+                        module_id: "module-01-ros2"
+                        week: 3
+                      - id: "module-01-ros2/week-03/ch02-services-actions"
+                        title: "ROS 2 Services and Actions"
+                        module_id: "module-01-ros2"
+                        week: 3
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /sessions:
+    post:
+      tags: [sessions]
+      summary: Create a new chat session
+      description: |
+        Explicitly create a new chat session with specified context.
+        Alternative to implicit session creation in `/chat` endpoint.
+      operationId: createSession
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSessionRequest'
+            examples:
+              fullTextbook:
+                summary: Full textbook context
+                value:
+                  context:
+                    mode: "full_textbook"
+                    selected_module_ids: []
+                    selected_chapter_ids: []
+              moduleContext:
+                summary: Single module context
+                value:
+                  context:
+                    mode: "module"
+                    selected_module_ids: ["module-01-ros2"]
+                    selected_chapter_ids: []
+      responses:
+        '201':
+          description: Session created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionResponse'
+              examples:
+                success:
+                  value:
+                    session_id: "7c9e6679-7425-40de-944b-e07fc1f90ae7"
+                    created_at: "2025-12-17T10:30:00Z"
+                    expires_at: "2025-12-18T10:30:00Z"
+                    context:
+                      mode: "module"
+                      selected_module_ids: ["module-01-ros2"]
+                      selected_chapter_ids: []
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /sessions/{session_id}/history:
+    get:
+      tags: [sessions]
+      summary: Retrieve chat history for session
+      description: |
+        Get conversation history for an existing session.
+        Returns last 10 messages (oldest messages archived).
+      operationId: getSessionHistory
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          description: Session UUID
+          schema:
+            type: string
+            format: uuid
+            example: "7c9e6679-7425-40de-944b-e07fc1f90ae7"
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionHistoryResponse'
+              examples:
+                success:
+                  value:
+                    session_id: "7c9e6679-7425-40de-944b-e07fc1f90ae7"
+                    messages:
+                      - role: "user"
+                        content: "How do I create a ROS 2 publisher?"
+                        timestamp: "2025-12-17T11:45:32Z"
+                        citations: null
+                      - role: "assistant"
+                        content: "To create a ROS 2 publisher in Python, use `rclpy.create_publisher()`..."
+                        timestamp: "2025-12-17T11:45:35Z"
+                        citations:
+                          - chapter_title: "ROS 2 Nodes and Topics"
+                            heading: "Creating a Publisher Node"
+                            url: "/docs/module-01-ros2/week-03/ch01-nodes-topics#creating-a-publisher-node"
+                            chunk_preview: "To create a publisher..."
+        '404':
+          description: Session not found or expired
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Session not found"
+                detail: "Session 7c9e6679-7425-40de-944b-e07fc1f90ae7 has expired or does not exist"
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+components:
+  schemas:
+    ChatRequest:
+      type: object
+      required: [message, context]
+      properties:
+        session_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: Existing session ID (null to create new session)
+          example: "7c9e6679-7425-40de-944b-e07fc1f90ae7"
+        message:
+          type: string
+          minLength: 1
+          maxLength: 500
+          description: User's query text
+          example: "How do I create a ROS 2 publisher in Python?"
+        context:
+          $ref: '#/components/schemas/ContextSelection'
+
+    ChatResponse:
+      type: object
+      required: [session_id, message, citations, response_time_ms]
+      properties:
+        session_id:
+          type: string
+          format: uuid
+          description: Session ID (newly created or existing)
+          example: "7c9e6679-7425-40de-944b-e07fc1f90ae7"
+        message:
+          type: string
+          description: AI-generated response with embedded citations
+          example: "To create a ROS 2 publisher...\n\n📚 **Sources:**\n• [ROS 2 Nodes and Topics: Creating a Publisher Node](/docs/...)"
+        citations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Citation'
+          description: Structured citations (max 5)
+        response_time_ms:
+          type: integer
+          minimum: 0
+          description: Response generation time in milliseconds
+          example: 2850
+
+    Citation:
+      type: object
+      required: [chapter_title, heading, url]
+      properties:
+        chapter_title:
+          type: string
+          description: Source chapter title
+          example: "ROS 2 Nodes and Topics"
+        heading:
+          type: string
+          description: Section heading within chapter
+          example: "Creating a Publisher Node"
+        url:
+          type: string
+          description: Full Docusaurus URL with anchor
+          example: "/docs/module-01-ros2/week-03/ch01-nodes-topics#creating-a-publisher-node"
+        chunk_preview:
+          type: string
+          nullable: true
+          description: First 100 characters of source chunk (optional)
+          example: "To create a publisher, use rclpy.create_publisher() with a message type and topic name..."
+
+    ContextSelection:
+      type: object
+      required: [mode, selected_module_ids, selected_chapter_ids]
+      properties:
+        mode:
+          type: string
+          enum: [full_textbook, module, chapter]
+          description: Retrieval scope
+          example: "module"
+        selected_module_ids:
+          type: array
+          items:
+            type: string
+          description: Module IDs (required if mode=module or mode=chapter)
+          example: ["module-01-ros2"]
+        selected_chapter_ids:
+          type: array
+          items:
+            type: string
+          description: Chapter IDs (required if mode=chapter)
+          example: ["module-01-ros2/week-03/ch01-nodes-topics"]
+
+    ModuleSummary:
+      type: object
+      required: [id, name, chapter_count, week_range]
+      properties:
+        id:
+          type: string
+          description: Module unique identifier
+          example: "module-01-ros2"
+        name:
+          type: string
+          description: Module display name
+          example: "ROS 2 - Robotic Nervous System"
+        chapter_count:
+          type: integer
+          minimum: 1
+          description: Number of chapters in module
+          example: 6
+        week_range:
+          type: string
+          pattern: '^\d+-\d+$'
+          description: Week span (e.g., "3-5")
+          example: "3-5"
+
+    ChapterSummary:
+      type: object
+      required: [id, title, module_id, week]
+      properties:
+        id:
+          type: string
+          description: Chapter unique identifier
+          example: "module-01-ros2/week-03/ch01-nodes-topics"
+        title:
+          type: string
+          description: Chapter display title
+          example: "ROS 2 Nodes and Topics"
+        module_id:
+          type: string
+          description: Parent module ID
+          example: "module-01-ros2"
+        week:
+          type: integer
+          minimum: 1
+          maximum: 13
+          description: Week number
+          example: 3
+
+    CreateSessionRequest:
+      type: object
+      required: [context]
+      properties:
+        context:
+          $ref: '#/components/schemas/ContextSelection'
+
+    SessionResponse:
+      type: object
+      required: [session_id, created_at, expires_at, context]
+      properties:
+        session_id:
+          type: string
+          format: uuid
+          example: "7c9e6679-7425-40de-944b-e07fc1f90ae7"
+        created_at:
+          type: string
+          format: date-time
+          example: "2025-12-17T10:30:00Z"
+        expires_at:
+          type: string
+          format: date-time
+          description: Expiration time (24 hours after creation)
+          example: "2025-12-18T10:30:00Z"
+        context:
+          $ref: '#/components/schemas/ContextSelection'
+
+    SessionHistoryResponse:
+      type: object
+      required: [session_id, messages]
+      properties:
+        session_id:
+          type: string
+          format: uuid
+          example: "7c9e6679-7425-40de-944b-e07fc1f90ae7"
+        messages:
+          type: array
+          maxItems: 10
+          description: Last 10 messages in chronological order
+          items:
+            $ref: '#/components/schemas/HistoryMessage'
+
+    HistoryMessage:
+      type: object
+      required: [role, content, timestamp]
+      properties:
+        role:
+          type: string
+          enum: [user, assistant]
+          example: "user"
+        content:
+          type: string
+          description: Message text
+          example: "How do I create a ROS 2 publisher?"
+        timestamp:
+          type: string
+          format: date-time
+          example: "2025-12-17T11:45:32Z"
+        citations:
+          type: array
+          nullable: true
+          description: Citations (only for assistant messages)
+          items:
+            $ref: '#/components/schemas/Citation'
+
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+          description: Error message
+          example: "Invalid request"
+        detail:
+          type: string
+          nullable: true
+          description: Additional error details
+          example: "Message exceeds 500 character limit"
+        field:
+          type: string
+          nullable: true
+          description: Field name for validation errors
+          example: "message"
+
+  responses:
+    BadRequest:
+      description: Invalid request parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            messageTooLong:
+              value:
+                error: "Validation error"
+                detail: "Message exceeds 500 character limit"
+                field: "message"
+            invalidContext:
+              value:
+                error: "Invalid context selection"
+                detail: "mode=module requires non-empty selected_module_ids"
+                field: "context.selected_module_ids"
+            invalidModuleId:
+              value:
+                error: "Invalid module ID"
+                detail: "Module 'invalid-module' does not exist"
+                field: "context.selected_module_ids"
+
+    RateLimitExceeded:
+      description: Rate limit exceeded
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Rate limit exceeded"
+            detail: "Maximum 10 queries per hour exceeded. Try again in 45 minutes."
+
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            ragFailure:
+              value:
+                error: "RAG retrieval failed"
+                detail: "Qdrant vector database unavailable"
+            openaiFailure:
+              value:
+                error: "OpenAI API error"
+                detail: "OpenAI API rate limit exceeded. Retrying in 5 seconds..."
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: Optional API key for rate limiting and analytics (not required for pilot)
+
+security: []  # No authentication required for pilot deployment

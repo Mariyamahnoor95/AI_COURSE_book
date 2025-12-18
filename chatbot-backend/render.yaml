@@ -1,0 +1,38 @@
+# Render Blueprint for FastAPI Backend
+# Documentation: https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: physical-ai-chatbot-api
+    env: python
+    region: oregon  # Choose closest region
+    plan: free  # Free tier: 750 hours/month, sleeps after 15 min inactivity
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn src.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.13
+      - key: ENVIRONMENT
+        value: production
+      - key: OPENAI_API_KEY
+        sync: false  # Set manually in Render dashboard (secret)
+      - key: QDRANT_URL
+        sync: false  # Set manually in Render dashboard (secret)
+      - key: QDRANT_API_KEY
+        sync: false  # Set manually in Render dashboard (secret)
+      - key: NEON_DATABASE_URL
+        sync: false  # Set manually in Render dashboard (secret)
+      - key: CORS_ORIGINS
+        value: https://noori.github.io,http://localhost:3000
+      - key: RATE_LIMIT_QUERIES_PER_HOUR
+        value: 10
+      - key: CHUNK_SIZE_MIN
+        value: 400
+      - key: CHUNK_SIZE_MAX
+        value: 600
+      - key: CHUNK_OVERLAP_TOKENS
+        value: 60
+      - key: TOP_K_RESULTS
+        value: 5
+      - key: MAX_CONTEXT_TOKENS
+        value: 3000

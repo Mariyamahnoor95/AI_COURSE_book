@@ -1,55 +1,68 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report:
+Version change:  → 1.0.0
+Modified principles:
+  -  → Audience-Centric Design
+  -  → Unified Textbook & Integrated RAG Chatbot
+  -  → Spec-Driven Development & Defined Tech Stack
+  -  → Markdown & Scope Adherence
+Added sections:
+  - Project Scope & Constraints
+Removed sections:
+  - Unused Principle sections
+  - Unused Section 3
+Templates requiring updates:
+  - .specify/templates/plan-template.md: ✅ updated
+  - .specify/templates/spec-template.md: ✅ updated
+  - .specify/templates/tasks-template.md: ✅ updated
+  - .specify/templates/commands/*.md: ✅ updated
+  - README.md: ⚠ pending (manual follow-up)
+  - docs/quickstart.md: ⚠ pending (manual follow-up)
+Follow-up TODOs:
+  - TODO(RATIFICATION_DATE): Original adoption date for the constitution.
+-->
+# Physical AI & Humanoid Robotics Book Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### Audience-Centric Design
+All content MUST be tailored to undergraduate to early graduate students learning Physical AI and Humanoid Robotics. Technical depth and pedagogical approach MUST align with this demographic.
+Rationale: Ensures the book and chatbot are effective learning tools for the target demographic, optimizing clarity and relevance.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### Unified Textbook & Integrated RAG Chatbot
+The project MUST deliver a comprehensive course textbook on Physical AI & Humanoid Robotics. An embedded RAG chatbot MUST be integrated, with its knowledge base strictly limited to the book's content.
+Rationale: Provides a cohesive learning experience and a focused, reliable conversational agent directly supporting the curriculum.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### Spec-Driven Development & Defined Tech Stack
+All development MUST adhere strictly to Spec-Driven Development (SDD) principles. The project MUST utilize the specified tech stack: Spec-Kit Plus + Claude Code, Docusaurus + GitHub Pages, OpenAI Agents / ChatKit SDKs, FastAPI, Neon Serverless Postgres, and Qdrant Cloud (Free Tier).
+Rationale: Ensures structured development, maintains consistency, leverages chosen technologies effectively, and prevents scope creep.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### Markdown & Scope Adherence
+All textual output MUST be in Markdown format. Content MUST strictly remain within the defined scope of Physical AI & Humanoid Robotics; out-of-scope content is NOT permitted.
+Rationale: Guarantees consistent formatting, facilitates documentation, and prevents dilution of the core subject matter.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+## Project Scope & Constraints
 
-### [PRINCIPLE_6_NAME]
+## Target Audience
+Undergraduate to early graduate students learning Physical AI and Humanoid Robotics.
 
+## Scope
+Create a unified course textbook on Physical AI & Humanoid Robotics and an embedded RAG chatbot that answers questions from the book content only.
 
-[PRINCIPLE__DESCRIPTION]
+## Tech Stack
+- Spec-Kit Plus + Claude Code
+- Docusaurus + GitHub Pages
+- OpenAI Agents / ChatKit SDKs
+- FastAPI
+- Neon Serverless Postgres
+- Qdrant Cloud (Free Tier)
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
-
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
-
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
-
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+## Constraints
+- Spec-driven development only
+- Markdown output
+- No out-of-scope content
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
+This constitution supersedes all other project practices. Amendments require a documented proposal, team approval, and a clear migration plan. All Pull Requests and code reviews MUST verify compliance with these principles. Unjustified complexity is not permitted.
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
-
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: TODO(RATIFICATION_DATE): Original adoption date for the constitution. | **Last Amended**: 2025-12-15

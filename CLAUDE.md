@@ -208,3 +208,9 @@ Wait for consent; never auto-create ADRs. Group related decisions (stacks, authe
 
 ## Code Standards
 See `.specify/memory/constitution.md` for code quality, testing, performance, security, and architecture principles.
+
+## Active Technologies
+- Python 3.10+, Node.js 18+ (Docusaurus), Markdown (content authoring) (001-physical-ai-robotics-textbook)
+
+## Recent Changes
+- 001-physical-ai-robotics-textbook: Added Python 3.10+, Node.js 18+ (Docusaurus), Markdown (content authoring)
