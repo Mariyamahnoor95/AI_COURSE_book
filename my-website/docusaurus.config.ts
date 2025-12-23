@@ -15,15 +15,15 @@ const config: Config = {
   },
 
   // Set the production url of your site here
-  url: 'https://noori.github.io',
+  url: 'https://Mariyamahnoor95.github.io',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/hackathon1_book/',
+  baseUrl: '/AI_COURSE_book/',
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'noori', // Usually your GitHub org/user name.
-  projectName: 'hackathon1_book', // Usually your repo name.
+  organizationName: 'Mariyamahnoor95', // Usually your GitHub org/user name.
+  projectName: 'AI_COURSE_book', // Usually your repo name.
 
   onBrokenLinks: 'warn', // Allow build with broken links during development
 

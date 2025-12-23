@@ -3,8 +3,8 @@ import clsx from 'clsx';
 import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
-import HomepageFeatures from '@site/src/components/HomepageFeatures';
 import Heading from '@theme/Heading';
+import ChatbotWidget from '@site/src/components/ChatbotWidget';
 
 import styles from './index.module.css';
 
@@ -21,7 +21,7 @@ function HomepageHeader() {
           <Link
             className="button button--secondary button--lg"
             to="/docs/intro">
-            Docusaurus Tutorial - 5min ⏱️
+            Start Learning
           </Link>
         </div>
       </div>
@@ -33,12 +33,13 @@ export default function Home(): ReactNode {
   const {siteConfig} = useDocusaurusContext();
   return (
     <Layout
-      title={`Hello from ${siteConfig.title}`}
-      description="Description will go into a meta tag in <head />">
+      title={`${siteConfig.title}`}
+      description="A comprehensive guide to Physical AI and Humanoid Robotics">
       <HomepageHeader />
       <main>
-        <HomepageFeatures />
+        {/* Textbook landing page content will go here */}
       </main>
+      <ChatbotWidget />
     </Layout>
   );
 }

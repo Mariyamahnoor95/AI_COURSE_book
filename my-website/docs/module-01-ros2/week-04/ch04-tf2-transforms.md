@@ -624,6 +624,6 @@ Create a node that:
 
 ---
 
-**Next Chapter**: [URDF Robot Modeling →](ch05-urdf-models.md)
+**Next Chapter**: [URDF Robot Modeling →](../week-05/ch05-urdf-models.md)
 
 **Previous Chapter**: [← Python Programming with rclpy](ch03-python-rclpy.md)

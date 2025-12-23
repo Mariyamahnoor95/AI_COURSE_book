@@ -2,208 +2,618 @@
 id: ch10-digital-twin
 title: Digital Twin Concepts
 sidebar_label: Digital Twin Concepts
-sidebar_position: 11
+sidebar_position: 2
 ---
 
 # Digital Twin Concepts
-
-:::caution Content In Progress
-This chapter template provides structure for technical writers and subject matter experts to fill in detailed content.
-:::
 
 ## Learning Objectives
 
 By the end of this chapter, you will be able to:
 
-- Understand and apply concepts related to digital twin architecture
-- Understand and apply concepts related to state synchronization
-- Understand and apply concepts related to bi-directional communication
-- Understand and apply concepts related to predictive analytics
-- Understand and apply concepts related to applications in robotics
+- Understand digital twin architecture and its components
+- Implement real-time state synchronization between physical and virtual robots
+- Configure bi-directional communication for command and telemetry
+- Apply predictive analytics using digital twin data
+- Recognize use cases and applications of digital twins in robotics
 
 ## Introduction
 
-TODO: Write 2-3 paragraphs introducing digital twin concepts and its importance in Physical AI and robotics systems.
+A **digital twin** is a virtual replica of a physical system that mirrors its real-world counterpart in real-time. In robotics, digital twins create a bridge between physical robots and their simulated models, enabling remote monitoring, predictive maintenance, and advanced analytics.
 
-Key questions to address:
-- What problem does this technology solve?
-- Why is it important for Physical AI systems?
-- How does it build on previous chapters?
+**The digital twin concept**: Instead of treating simulation and reality as separate domains, digital twins **continuously synchronize**:
+- **Physical robot** → sends sensor data, telemetry, state → **Digital twin**
+- **Digital twin** → sends commands, configurations → **Physical robot**
 
-## 1. Digital twin architecture
+**Why digital twins for robotics?**
+- **Remote monitoring**: Visualize robots operating in dangerous or inaccessible locations
+- **Predictive maintenance**: Detect failures before they occur using simulation
+- **Testing and validation**: Test new behaviors in simulation before deploying to hardware
+- **Fleet management**: Monitor thousands of robots from a centralized dashboard
+- **Training**: Train operators and AI models using realistic virtual environments
+- **Debugging**: Replay recorded sensor data to diagnose issues
 
-TODO: Write 3-4 paragraphs explaining digital twin architecture in detail.
+**Digital twin vs traditional simulation:**
 
-### Key Concepts
+| Feature | Traditional Sim | Digital Twin |
+|---------|----------------|--------------|
+| **Connection** | Offline | Real-time sync |
+| **Data flow** | One-way | Bi-directional |
+| **Purpose** | Testing | Monitoring + Testing |
+| **State** | Simulated only | Mirrors reality |
+| **Use case** | Pre-deployment | Production monitoring |
 
-- **TODO Concept 1**: Brief explanation
-- **TODO Concept 2**: Brief explanation
-- **TODO Concept 3**: Brief explanation
+This chapter explores how to build and use digital twins for robotic systems using Gazebo, Unity, and ROS 2.
 
-### Implementation Details
+## 1. Digital Twin Architecture
 
-TODO: Provide technical details about implementing digital twin architecture.
+### Three-Layer Architecture
 
-## 2. State synchronization
+A robust digital twin system consists of three layers:
 
-TODO: Write 3-4 paragraphs explaining state synchronization in detail.
-
-### Key Concepts
-
-- **TODO Concept 1**: Brief explanation
-- **TODO Concept 2**: Brief explanation
-- **TODO Concept 3**: Brief explanation
-
-### Implementation Details
-
-TODO: Provide technical details about implementing state synchronization.
-
-## 3. Bi-directional communication
-
-TODO: Write 3-4 paragraphs explaining bi-directional communication in detail.
-
-### Key Concepts
-
-- **TODO Concept 1**: Brief explanation
-- **TODO Concept 2**: Brief explanation
-- **TODO Concept 3**: Brief explanation
-
-### Implementation Details
-
-TODO: Provide technical details about implementing bi-directional communication.
-
-## 4. Predictive analytics
-
-TODO: Write 3-4 paragraphs explaining predictive analytics in detail.
-
-### Key Concepts
-
-- **TODO Concept 1**: Brief explanation
-- **TODO Concept 2**: Brief explanation
-- **TODO Concept 3**: Brief explanation
-
-### Implementation Details
-
-TODO: Provide technical details about implementing predictive analytics.
-
-## 5. Applications in robotics
-
-TODO: Write 3-4 paragraphs explaining applications in robotics in detail.
-
-### Key Concepts
-
-- **TODO Concept 1**: Brief explanation
-- **TODO Concept 2**: Brief explanation
-- **TODO Concept 3**: Brief explanation
-
-### Implementation Details
-
-TODO: Provide technical details about implementing applications in robotics.
-
-
-
-## Practical Example
-
-TODO: Provide a hands-on code example or walkthrough demonstrating the key concepts of digital twin concepts.
-
-```python
-# TODO: Add code example demonstrating digital twin concepts
-import rclpy
-from rclpy.node import Node
-
-class ExampleDigitalTwinConceptsNode(Node):
-    def __init__(self):
-        super().__init__('example_digital_twin_concepts')
-        # TODO: Implement example
-        self.get_logger().info('Digital Twin Concepts node initialized')
-
-def main():
-    rclpy.init()
-    node = ExampleDigitalTwinConceptsNode()
-    rclpy.spin(node)
-    rclpy.shutdown()
-
-if __name__ == '__main__':
-    main()
+```
+┌────────────────────────────────────────────────┐
+│  PRESENTATION LAYER                            │
+│  (Dashboard, VR/AR, Control Interfaces)        │
+│  - Unity visualization                         │
+│  - Web dashboard                               │
+│  - Mobile apps                                 │
+└─────────────┬──────────────────────────────────┘
+              │ REST API / WebSocket
+┌─────────────▼──────────────────────────────────┐
+│  DIGITAL TWIN LAYER (Cloud/Edge)               │
+│  - State synchronization                       │
+│  - Historical data storage                     │
+│  - Predictive models                           │
+│  - Fleet management                            │
+└─────────────┬──────────────────────────────────┘
+              │ ROS 2 Topics / MQTT
+┌─────────────▼──────────────────────────────────┐
+│  PHYSICAL LAYER (Robot)                        │
+│  - Sensors (LiDAR, cameras, IMU)               │
+│  - Actuators (motors, grippers)                │
+│  - Onboard computer (ROS 2 nodes)              │
+│  - Edge processing                             │
+└────────────────────────────────────────────────┘
 ```
 
-**Key Implementation Points:**
-- TODO: Highlight important implementation detail 1
-- TODO: Highlight important implementation detail 2
-- TODO: Explain common pitfalls and how to avoid them
+### Core Components
 
-## Common Challenges and Solutions
+**1. Physical Robot**
+- Real hardware with sensors and actuators
+- Runs ROS 2 nodes for control and sensing
+- Publishes telemetry to cloud/edge server
 
-### Challenge 1: TODO Title
+**2. Digital Model**
+- Virtual robot in Gazebo or Unity
+- URDF model matching physical robot
+- Receives state updates from physical robot
+- Can simulate "what-if" scenarios
 
-**Problem**: TODO: Describe a common challenge students face
+**3. Synchronization Layer**
+- Manages bidirectional data flow
+- Handles network latency and disconnections
+- Ensures consistency between physical and digital
+- Timestamps all messages for alignment
 
-**Solution**: TODO: Provide practical solution with explanation
+**4. Analytics Engine**
+- Processes historical data
+- Trains predictive models
+- Detects anomalies
+- Generates alerts and recommendations
 
-### Challenge 2: TODO Title
+**5. User Interface**
+- Real-time visualization (Unity, web dashboards)
+- Control panel for sending commands
+- Analytics dashboards
+- Alert management
 
-**Problem**: TODO: Describe another common challenge
+### Reference Architecture with ROS 2
 
-**Solution**: TODO: Provide practical solution with explanation
+```python
+# Digital Twin Core Node
+import rclpy
+from rclpy.node import Node
+from sensor_msgs.msg import JointState, LaserScan
+from geometry_msgs.msg import Pose
+from nav_msgs.msg import Odometry
 
-## Best Practices
+class DigitalTwinCore(Node):
+    def __init__(self):
+        super().__init__('digital_twin_core')
 
-1. **TODO Practice 1**: Brief explanation
-2. **TODO Practice 2**: Brief explanation
-3. **TODO Practice 3**: Brief explanation
-4. **TODO Practice 4**: Brief explanation
+        # Subscribe to physical robot telemetry
+        self.odom_sub = self.create_subscription(
+            Odometry, '/robot/odom', self.odom_callback, 10
+        )
+        self.joint_sub = self.create_subscription(
+            JointState, '/robot/joint_states', self.joint_callback, 10
+        )
+        self.scan_sub = self.create_subscription(
+            LaserScan, '/robot/scan', self.scan_callback, 10
+        )
+
+        # Publish to virtual robot (Gazebo/Unity)
+        self.virtual_odom_pub = self.create_publisher(
+            Odometry, '/virtual/odom', 10
+        )
+        self.virtual_joint_pub = self.create_publisher(
+            JointState, '/virtual/joint_states', 10
+        )
+
+        # Store latest state
+        self.latest_odom = None
+        self.latest_joints = None
+
+    def odom_callback(self, msg):
+        """Receive physical robot odometry"""
+        self.latest_odom = msg
+        # Forward to virtual robot
+        self.virtual_odom_pub.publish(msg)
+        # Store to database for analytics
+        self.store_telemetry('odom', msg)
+
+    def joint_callback(self, msg):
+        """Receive physical robot joint states"""
+        self.latest_joints = msg
+        # Update virtual robot
+        self.virtual_joint_pub.publish(msg)
+
+    def scan_callback(self, msg):
+        """Receive LiDAR scan"""
+        # Forward to virtual environment
+        # Can be used to update virtual obstacles
+        pass
+
+    def store_telemetry(self, data_type, msg):
+        """Store telemetry in time-series database"""
+        # Implementation: write to InfluxDB, PostgreSQL, etc.
+        pass
+```
+
+## 2. State Synchronization
+
+### Challenges of Real-Time Sync
+
+**Network latency**: Physical robot may be 100-500ms away from cloud
+**Clock drift**: Physical and virtual clocks diverge over time
+**Packet loss**: Wireless networks drop messages
+**State consistency**: Ensure virtual matches physical despite delays
+
+### Synchronization Strategies
+
+**1. Periodic State Updates (Push Model)**
+- Physical robot publishes state at fixed rate (10-100 Hz)
+- Digital twin subscribes and updates
+- Simple but can overwhelm network
+
+**2. Event-Driven Updates (Change Detection)**
+- Only publish when state changes significantly
+- Reduces bandwidth
+- Risk of missing gradual changes
+
+**3. Hybrid Approach** (Recommended)
+- Critical states (position, velocity): High frequency (50 Hz)
+- Slow-changing (battery, temperature): Low frequency (1 Hz)
+- Events (errors, warnings): Immediate
+
+**Example: Optimized State Publisher**
+
+```python
+import rclpy
+from rclpy.node import Node
+from geometry_msgs.msg import PoseStamped
+import numpy as np
+
+class SmartStateSynchronizer(Node):
+    def __init__(self):
+        super().__init__('smart_sync')
+
+        # Publishers
+        self.pose_pub = self.create_publisher(
+            PoseStamped, '/twin/pose', 10
+        )
+
+        # State tracking
+        self.last_published_pose = None
+        self.position_threshold = 0.05  # 5cm
+        self.angle_threshold = 0.1  # ~6 degrees
+
+        # Timer for maximum update interval
+        self.create_timer(0.1, self.timer_callback)  # Max 10 Hz
+
+        # Subscribe to actual robot pose
+        self.create_subscription(
+            PoseStamped, '/robot/pose', self.pose_callback, 10
+        )
+
+        self.current_pose = None
+
+    def pose_callback(self, msg):
+        """Receive pose from physical robot"""
+        self.current_pose = msg
+
+    def timer_callback(self):
+        """Publish if state changed significantly"""
+        if self.current_pose is None:
+            return
+
+        # Check if significant change occurred
+        if self.should_publish(self.current_pose):
+            self.pose_pub.publish(self.current_pose)
+            self.last_published_pose = self.current_pose
+
+    def should_publish(self, new_pose):
+        """Determine if pose change is significant"""
+        if self.last_published_pose is None:
+            return True  # First message
+
+        # Calculate position change
+        dx = new_pose.pose.position.x - self.last_published_pose.pose.position.x
+        dy = new_pose.pose.position.y - self.last_published_pose.pose.position.y
+        distance = np.sqrt(dx**2 + dy**2)
+
+        # Calculate orientation change (simplified)
+        dtheta = abs(
+            new_pose.pose.orientation.z -
+            self.last_published_pose.pose.orientation.z
+        )
+
+        # Publish if threshold exceeded
+        return (distance > self.position_threshold or
+                dtheta > self.angle_threshold)
+```
+
+### Time Synchronization
+
+**Problem**: Physical robot and digital twin have different clocks
+
+**Solution: NTP (Network Time Protocol)**
+```bash
+# On physical robot
+sudo apt install ntp
+sudo systemctl enable ntp
+sudo systemctl start ntp
+```
+
+**Solution: ROS 2 Time Stamping**
+```python
+# Always use ROS time in messages
+msg.header.stamp = self.get_clock().now().to_msg()
+```
+
+## 3. Bi-Directional Communication
+
+### Physical → Digital (Telemetry)
+
+**Sensor data flow:**
+```
+Physical Robot Sensors → ROS 2 Topics → MQTT/DDS → Cloud → Digital Twin
+```
+
+**Example: MQTT Bridge for Cloud Sync**
+
+```python
+import rclpy
+from rclpy.node import Node
+import paho.mqtt.client as mqtt
+import json
+
+class ROS2MQTTBridge(Node):
+    def __init__(self):
+        super().__init__('ros2_mqtt_bridge')
+
+        # MQTT client
+        self.mqtt_client = mqtt.Client()
+        self.mqtt_client.connect("mqtt.example.com", 1883)
+
+        # Subscribe to ROS topics
+        self.create_subscription(
+            Odometry, '/robot/odom', self.odom_to_mqtt, 10
+        )
+
+    def odom_to_mqtt(self, msg):
+        """Forward odometry to MQTT"""
+        payload = {
+            'robot_id': 'robot_001',
+            'timestamp': msg.header.stamp.sec,
+            'position': {
+                'x': msg.pose.pose.position.x,
+                'y': msg.pose.pose.position.y,
+                'z': msg.pose.pose.position.z
+            },
+            'velocity': {
+                'linear': msg.twist.twist.linear.x,
+                'angular': msg.twist.twist.angular.z
+            }
+        }
+
+        topic = f'robot/robot_001/telemetry/odom'
+        self.mqtt_client.publish(topic, json.dumps(payload))
+```
+
+### Digital → Physical (Commands)
+
+**Command flow:**
+```
+UI/Dashboard → REST API → MQTT → ROS 2 Topics → Physical Robot Actuators
+```
+
+**Example: Command Receiver on Physical Robot**
+
+```python
+class CommandReceiver(Node):
+    def __init__(self):
+        super().__init__('command_receiver')
+
+        # MQTT subscriber
+        self.mqtt_client = mqtt.Client()
+        self.mqtt_client.on_message = self.on_mqtt_message
+        self.mqtt_client.connect("mqtt.example.com", 1883)
+        self.mqtt_client.subscribe("robot/robot_001/commands/#")
+
+        # ROS publishers
+        self.cmd_vel_pub = self.create_publisher(Twist, '/cmd_vel', 10)
+
+        # Start MQTT loop in background
+        self.mqtt_client.loop_start()
+
+    def on_mqtt_message(self, client, userdata, msg):
+        """Receive command from cloud"""
+        payload = json.loads(msg.payload)
+
+        if msg.topic.endswith('/move'):
+            # Convert JSON to Twist message
+            twist = Twist()
+            twist.linear.x = payload['linear']
+            twist.angular.z = payload['angular']
+            self.cmd_vel_pub.publish(twist)
+            self.get_logger().info(f'Executing move command: {payload}')
+
+        elif msg.topic.endswith('/stop'):
+            # Emergency stop
+            self.cmd_vel_pub.publish(Twist())  # Zero velocity
+```
+
+### Safety and Validation
+
+**Command validation before execution:**
+
+```python
+def validate_command(self, cmd):
+    """Validate command before executing"""
+    # Check velocity limits
+    if abs(cmd.linear.x) > self.max_linear_vel:
+        self.get_logger().warn('Linear velocity exceeds limit')
+        return False
+
+    if abs(cmd.angular.z) > self.max_angular_vel:
+        self.get_logger().warn('Angular velocity exceeds limit')
+        return False
+
+    # Check robot state
+    if self.battery_level < 0.1:
+        self.get_logger().error('Battery too low for movement')
+        return False
+
+    # Check safety zones
+    if not self.is_in_safe_zone(self.current_pose):
+        self.get_logger().error('Robot outside safe operating zone')
+        return False
+
+    return True
+```
+
+## 4. Predictive Analytics
+
+### Anomaly Detection
+
+**Use case**: Detect motor failures before they occur
+
+**Approach**: Monitor motor current over time
+
+```python
+import numpy as np
+from scipy import stats
+
+class MotorHealthMonitor(Node):
+    def __init__(self):
+        super().__init__('motor_health')
+
+        # Historical data
+        self.current_history = []
+        self.window_size = 100
+
+        self.create_subscription(
+            JointState, '/joint_states', self.monitor_callback, 10
+        )
+
+    def monitor_callback(self, msg):
+        """Monitor joint effort (current)"""
+        for i, effort in enumerate(msg.effort):
+            self.current_history.append(effort)
+
+            # Keep only recent history
+            if len(self.current_history) > self.window_size:
+                self.current_history.pop(0)
+
+            # Detect anomaly
+            if len(self.current_history) == self.window_size:
+                if self.detect_anomaly(self.current_history):
+                    self.get_logger().warn(
+                        f'Anomaly detected in joint {i}: possible failure'
+                    )
+
+    def detect_anomaly(self, data):
+        """Statistical anomaly detection"""
+        mean = np.mean(data)
+        std = np.std(data)
+        latest = data[-1]
+
+        # Z-score > 3 indicates anomaly
+        z_score = abs((latest - mean) / std)
+        return z_score > 3.0
+```
+
+### Predictive Maintenance
+
+**Use case**: Predict when components will fail
+
+**Approach**: Machine learning on historical data
+
+```python
+from sklearn.ensemble import RandomForestClassifier
+import joblib
+
+class PredictiveMaintenance:
+    def __init__(self):
+        # Load pre-trained model
+        self.model = joblib.load('motor_failure_model.pkl')
+
+    def predict_failure(self, telemetry):
+        """Predict if failure will occur in next 24 hours"""
+        features = self.extract_features(telemetry)
+        prediction = self.model.predict_proba([features])[0]
+
+        failure_probability = prediction[1]  # Probability of failure
+        return failure_probability > 0.7  # 70% threshold
+
+    def extract_features(self, telemetry):
+        """Extract features from telemetry"""
+        return [
+            np.mean(telemetry['motor_current']),
+            np.std(telemetry['motor_current']),
+            np.mean(telemetry['temperature']),
+            telemetry['total_runtime_hours'],
+            telemetry['vibration_level']
+        ]
+```
+
+### Fleet-Wide Optimization
+
+**Use case**: Optimize robot task allocation across fleet
+
+```python
+class FleetOptimizer:
+    def __init__(self, robots):
+        self.robots = robots
+
+    def assign_tasks(self, tasks):
+        """Assign tasks to robots optimally"""
+        assignments = {}
+
+        for task in tasks:
+            # Find robot closest to task location
+            best_robot = None
+            min_cost = float('inf')
+
+            for robot in self.robots:
+                cost = self.calculate_cost(robot, task)
+                if cost < min_cost:
+                    min_cost = cost
+                    best_robot = robot
+
+            assignments[task.id] = best_robot
+
+        return assignments
+
+    def calculate_cost(self, robot, task):
+        """Cost = distance + battery penalty"""
+        distance = self.euclidean_distance(
+            robot.position, task.location
+        )
+
+        battery_penalty = 0 if robot.battery > 0.3 else 1000
+
+        return distance + battery_penalty
+```
+
+## 5. Applications in Robotics
+
+### Remote Monitoring
+
+**Warehouse robots**: Visualize 100+ robots on single dashboard
+**Underwater robots**: Monitor in real-time from surface vessel
+**Space robots**: Operate Mars rovers with 20-minute light delay
+
+### Testing in Simulation
+
+Before deploying new behavior to physical robot:
+1. Update digital twin with new code
+2. Run simulated tests
+3. Validate safety and performance
+4. Deploy to physical robot only after passing
+
+### Training and Education
+
+- Train operators using digital twin before touching hardware
+- Students learn on virtual robots (no hardware damage)
+- AI models trained in simulation, deployed to hardware
+
+### Digital Twins in Production
+
+**Example: Amazon warehouse robots**
+- 200,000+ robots monitored via digital twins
+- Predictive maintenance reduces downtime by 40%
+- Fleet optimization increases throughput by 25%
 
 ## Summary
 
-Key takeaways from this chapter:
+Key takeaways:
 
-- TODO: Key point 1 about digital twin concepts
-- TODO: Key point 2 about digital twin concepts
-- TODO: Key point 3 about digital twin concepts
-- TODO: How this knowledge applies to Physical AI systems
+- **Digital twins** create real-time virtual replicas of physical robots
+- **Three-layer architecture**: Physical, Digital Twin, Presentation
+- **State synchronization** requires handling latency, clock drift, packet loss
+- **Bi-directional communication** enables both monitoring and control
+- **Predictive analytics** enable anomaly detection and maintenance forecasting
+- **Applications** include remote monitoring, testing, training, fleet optimization
 
-## Further Reading
-
-- **Official Documentation**: TODO: Link to relevant official docs
-- **Research Papers**: TODO: List 2-3 foundational papers
-- **Tutorials**: TODO: Link to external learning resources
-- **Community Resources**: TODO: Forums, discussion groups
+**Best practices:**
+- Use event-driven updates to reduce bandwidth
+- Always validate commands before executing on physical robot
+- Implement time synchronization (NTP, ROS time stamps)
+- Store historical data for analytics and debugging
+- Design for network disconnections (graceful degradation)
 
 ## Review Questions
 
-1. TODO: Conceptual question about main topic
-2. TODO: Application question requiring analysis
-3. TODO: Comparison question (compare two approaches)
-4. TODO: Implementation question
-5. TODO: Problem-solving scenario question
+1. What is the difference between a traditional simulation and a digital twin?
+2. Why is time synchronization important in digital twin systems?
+3. How would you reduce network bandwidth for state synchronization?
+4. What are the safety considerations for bi-directional communication?
+5. How can digital twins enable predictive maintenance?
+6. When would you use MQTT vs ROS 2 DDS for communication?
+7. What are the main challenges of implementing digital twins at scale?
 
-## Hands-On Exercise
+## Hands-on Exercises
 
-**Exercise Title**: TODO: Descriptive exercise name
+### Exercise 1: Basic Digital Twin
+- Run Gazebo simulation and physical robot (or second simulation)
+- Create bridge node that syncs robot poses
+- Visualize both in RViz
+- Observe latency and synchronization quality
 
-**Objective**: TODO: What should students learn from this exercise?
+### Exercise 2: Command Relay
+- Implement bi-directional bridge
+- Send `/cmd_vel` commands from one robot to other
+- Add validation layer (speed limits, safety checks)
+- Test emergency stop functionality
 
-**Prerequisites**:
-- Completed previous chapters
-- ROS 2 environment set up
-- TODO: Any specific tools or packages
+### Exercise 3: Anomaly Detection
+- Collect joint effort data from robot
+- Implement Z-score anomaly detection
+- Trigger alert when anomaly detected
+- Visualize current over time
 
-**Steps**:
-1. TODO: Step-by-step instruction 1
-2. TODO: Step-by-step instruction 2
-3. TODO: Step-by-step instruction 3
-4. TODO: Test and verify results
+## Further Reading
 
-**Expected Outcome**: TODO: Describe what successful completion looks like
-
-**Extension Challenges** (Optional):
-- TODO: Advanced variation 1
-- TODO: Advanced variation 2
-
-**Complete code available in**: `/static/code/digital-twin/chapter10/`
+- [Digital Twin Consortium](https://www.digitaltwinconsortium.org/)
+- [AWS IoT TwinMaker](https://aws.amazon.com/iot-twinmaker/)
+- [Azure Digital Twins](https://azure.microsoft.com/en-us/services/digital-twins/)
+- [MQTT Protocol Specification](https://mqtt.org/)
 
 ---
 
-**Previous Chapter**: TODO: Link to previous chapter
-**Next Chapter**: TODO: Link to next chapter
-**Module Overview**: TODO: Link to module index
+**Next Chapter**: [Module 3: NVIDIA Isaac Sim →](../../module-03-isaac/week-08/ch11-isaac-sim.md)
+
+**Previous Chapter**: [← Unity for Robot Visualization](ch09-unity-viz.md)

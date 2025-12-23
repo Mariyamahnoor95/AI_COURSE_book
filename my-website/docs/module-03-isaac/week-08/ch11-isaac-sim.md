@@ -721,6 +721,6 @@ Key takeaways from this chapter:
 
 ---
 
-**Next Chapter**: [ROS 2 + Isaac Sim Integration →](ch12-ros2-isaac.md)
+**Next Chapter**: [ROS 2 + Isaac Sim Integration →](ch12-isaac-ros.md)
 
-**Previous Chapter**: [← Multi-Robot Coordination](../week-07/ch10-multi-robot.md)
+**Previous Chapter**: [← Digital Twin Concepts](../../module-02-digital-twin/week-07/ch10-digital-twin.md)

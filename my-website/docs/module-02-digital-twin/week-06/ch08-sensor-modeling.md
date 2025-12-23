@@ -725,6 +725,6 @@ Compare odometry to ground truth:
 
 ---
 
-**Next Chapter**: [Performance Monitoring →](ch09-performance-monitoring.md)
+**Next Chapter**: [Unity Visualization →](../week-07/ch09-unity-viz.md)
 
 **Previous Chapter**: [← Gazebo Physics Simulation](ch07-gazebo-physics.md)

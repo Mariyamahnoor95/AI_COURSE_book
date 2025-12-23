@@ -646,6 +646,6 @@ Convert Exercise 1 to Xacro:
 
 ---
 
-**Next Chapter**: [Navigation with Nav2 →](../week-06/ch06-nav2-basics.md)
+**Next Chapter**: [Navigation with Nav2 →](ch06-nav2-basics.md)
 
-**Previous Chapter**: [← TF2 Coordinate Transforms](ch04-tf2-transforms.md)
+**Previous Chapter**: [← TF2 Coordinate Transforms](../week-04/ch04-tf2-transforms.md)

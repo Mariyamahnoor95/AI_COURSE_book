@@ -591,6 +591,6 @@ Key takeaways from this chapter:
 
 ---
 
-**Next Chapter**: [Reinforcement Learning for Robots →](../week-10/ch14-rl-robots.md)
+**Next Chapter**: [Perception with Isaac →](ch14-perception.md)
 
-**Previous Chapter**: [← ROS 2 + Isaac Sim Integration](../week-08/ch12-ros2-isaac.md)
+**Previous Chapter**: [← ROS 2 + Isaac Sim Integration](../week-08/ch12-isaac-ros.md)

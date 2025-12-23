@@ -130,25 +130,29 @@ description: "Implementation tasks for Physical AI & Humanoid Robotics Interacti
 
 ### Content Authoring for User Story 1
 
-- [ ] T015 [P] [US1] Create Foundations Week 1-2 content in docs/foundations/
-  - **Files**: week-01/ch00-intro-physical-ai.md, ch01-embodied-intelligence.md, week-02/ch02-sensors.md, ch03-actuators-robotics-arch.md
+- [X] T015 [P] [US1] Create Foundations Week 1-2 content in docs/foundations/
+  - **Files**: week-01/ch00-intro-physical-ai.md (1773 words ✓), ch01-embodied-intelligence.md (1090 words ✓), week-02/ch02-sensors.md (2600 words ✓), ch03-actuators-robotics-arch.md (2400 words ✓)
   - **Acceptance**: 4 chapters (1,500-2,500 words each) covering embodied AI, sensors, actuators, robotics architectures per FR-002a
   - **Maps to**: FR-001, FR-002a, SC-009
+  - **Status**: COMPLETE
 
-- [ ] T016 [P] [US1] Create Module 1 (ROS 2) content in docs/module-01-ros2/
-  - **Files**: week-03/ch01-nodes-topics.md, ch02-services-actions.md; week-04/ch03-python-rclpy.md, ch04-tf2-transforms.md; week-05/ch05-urdf-models.md, ch06-nav2-basics.md
+- [X] T016 [P] [US1] Create Module 1 (ROS 2) content in docs/module-01-ros2/
+  - **Files**: week-03/ch01-nodes-topics.md (2131 words ✓), ch02-services-actions.md (2043 words ✓); week-04/ch03-python-rclpy.md (1480 words ✓), ch04-tf2-transforms.md (2296 words ✓); week-05/ch05-urdf-models.md (1976 words ✓), ch06-nav2-basics.md (2500 words ✓)
   - **Acceptance**: 6 chapters covering ROS 2 nodes, topics, services, Python (rclpy, tf2, sensor_msgs, geometry_msgs, nav2_simple_commander), URDF per FR-003
   - **Maps to**: FR-003, FR-024, SC-009
+  - **Status**: COMPLETE
 
-- [ ] T017 [P] [US1] Create Module 2 (Digital Twin) content in docs/module-02-digital-twin/
-  - **Files**: week-06/ch07-gazebo-physics.md, ch08-sensor-modeling.md; week-07/ch09-unity-viz.md, ch10-digital-twin.md
+- [X] T017 [P] [US1] Create Module 2 (Digital Twin) content in docs/module-02-digital-twin/
+  - **Files**: week-06/ch07-gazebo-physics.md (2066 words ✓), ch08-sensor-modeling.md (2209 words ✓); week-07/ch09-unity-viz.md (2700 words ✓), ch10-digital-twin.md (2700 words ✓)
   - **Acceptance**: 4 chapters covering Gazebo physics, Unity visualization, sensor modeling (LiDAR, depth, IMU), digital twin concepts per FR-004
   - **Maps to**: FR-004, SC-009
+  - **Status**: COMPLETE
 
-- [ ] T018 [P] [US1] Create Module 3 (NVIDIA Isaac) content in docs/module-03-isaac/
-  - **Files**: week-08/ch11-isaac-sim.md, ch12-isaac-ros.md; week-09/ch13-vslam-nav2.md, ch14-perception.md; week-10/ch15-rl-sim2real.md, ch16-sensor-fusion.md
+- [X] T018 [P] [US1] Create Module 3 (NVIDIA Isaac) content in docs/module-03-isaac/
+  - **Files**: week-08/ch11-isaac-sim.md (2202 words ✓), ch12-isaac-ros.md (1917 words ✓); week-09/ch13-vslam-nav2.md (2019 words ✓), ch14-perception.md (2356 words ✓); week-10/ch15-rl-sim2real.md (2294 words ✓), ch16-sensor-fusion.md (2472 words ✓)
   - **Acceptance**: 6 chapters covering Isaac Sim, Isaac ROS, VSLAM, Nav2, RL, sim-to-real per FR-005
   - **Maps to**: FR-005, SC-009
+  - **Status**: COMPLETE
 
 - [ ] T019 [P] [US1] Create Module 4 (VLA) content in docs/module-04-vla/
   - **Files**: week-11/ch17-humanoid-urdf.md, ch18-joint-control.md; week-12/ch19-grasping.md, ch20-walking-gaits.md; week-13/ch21-whisper-voice.md, ch22-llm-planning.md, ch23-vla-integration.md
@@ -168,8 +172,8 @@ description: "Implementation tasks for Physical AI & Humanoid Robotics Interacti
   - **Dependencies**: T015-T019 (content must exist), T013 (ingestion script)
   - **Maps to**: FR-017
 
-- [ ] T023 [US1] Validate Markdown linting and link checking
-  - **Acceptance**: All Markdown files pass linting, no broken internal links
+- [X] T023 [US1] Validate Markdown linting and link checking
+  - **Acceptance**: All Markdown files pass linting, no broken internal links ✅ Fixed 13 broken internal links, fixed 4 MDX syntax errors
   - **Dependencies**: T015-T019
   - **Maps to**: FR-014
 
@@ -223,7 +227,7 @@ description: "Implementation tasks for Physical AI & Humanoid Robotics Interacti
 
 ### Frontend Implementation for User Story 2
 
-- [ ] T031 [P] [US2] Create ChatbotWidget component in src/components/ChatbotWidget/
+- [x] T031 [P] [US2] Create ChatbotWidget component in src/components/ChatbotWidget/
   - **Files**: ChatbotWidget.tsx, ChatInput.tsx, MessageList.tsx, styles.module.css
   - **Acceptance**: Fixed bottom-right floating widget, collapsible, message input/display with citations
   - **Maps to**: FR-007
