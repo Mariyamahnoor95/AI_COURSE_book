@@ -44,7 +44,9 @@ interface ChatbotWidgetProps {
 }
 
 const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({
-  apiBaseUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000'
+  apiBaseUrl = typeof window !== 'undefined'
+    ? (window as any).CHATBOT_API_URL || 'https://mraiss-ai-course-book.hf.space'
+    : 'https://mraiss-ai-course-book.hf.space'
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
