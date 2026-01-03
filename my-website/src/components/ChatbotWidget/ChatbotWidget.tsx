@@ -1,3 +1,22 @@
+/**
+ * ChatbotWidget - Floating chat interface for textbook Q&A
+ *
+ * Connects to FastAPI backend (T027: POST /chat endpoint)
+ * Maps to: FR-007 (Embedded chatbot), SC-002 (<3s response time)
+ *
+ * Features:
+ * - Session persistence across navigation
+ * - Full-textbook RAG context
+ * - Clickable citations to source material
+ * - Rate limiting error handling
+ * - Response time display
+ *
+ * Configuration:
+ * - Set REACT_APP_API_URL environment variable for backend URL
+ * - Default: http://localhost:8000 (development)
+ * - Production: Set to Render backend URL (per T035)
+ */
+
 import React, { useState, useCallback } from 'react';
 import ChatInput from './ChatInput';
 import MessageList from './MessageList';
@@ -9,13 +28,15 @@ export interface Message {
   content: string;
   citations?: Citation[];
   timestamp: Date;
+  response_time_ms?: number;
 }
 
 export interface Citation {
+  chunk_id: string;
   chapter_title: string;
   heading: string;
   url: string;
-  chunk_preview: string;
+  chunk_preview?: string;
 }
 
 interface ChatbotWidgetProps {
@@ -23,7 +44,7 @@ interface ChatbotWidgetProps {
 }
 
 const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({
-  apiBaseUrl = 'http://localhost:8000/v1'
+  apiBaseUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000'
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -49,8 +70,8 @@ const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({
     setIsLoading(true);
 
     try {
-      // Call chatbot API
-      const response = await fetch(`${apiBaseUrl}/chat`, {
+      // Call chatbot API (per T027: POST /chat endpoint)
+      const response = await fetch(`${apiBaseUrl}/api/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -67,23 +88,29 @@ const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({
       });
 
       if (!response.ok) {
+        // Handle rate limiting (429)
+        if (response.status === 429) {
+          const errorData = await response.json();
+          throw new Error(errorData.detail || 'Rate limit exceeded. Please try again later.');
+        }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
 
       // Update session ID if new session was created
-      if (data.session_id && !sessionId) {
+      if (data.session_id) {
         setSessionId(data.session_id);
       }
 
-      // Add assistant message to UI
+      // Add assistant message to UI with citations and response time
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
         content: data.message,
-        citations: data.citations,
-        timestamp: new Date()
+        citations: data.citations || [],
+        timestamp: new Date(),
+        response_time_ms: data.response_time_ms
       };
 
       setMessages(prev => [...prev, assistantMessage]);
@@ -94,7 +121,9 @@ const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: 'Sorry, I encountered an error processing your request. Please try again.',
+        content: error instanceof Error
+          ? error.message
+          : 'Sorry, I encountered an error processing your request. Please try again.',
         timestamp: new Date()
       };
 
