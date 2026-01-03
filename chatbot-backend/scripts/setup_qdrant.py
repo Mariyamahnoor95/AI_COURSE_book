@@ -63,18 +63,18 @@ def setup_qdrant_collection():
                 return
 
         # Create collection
-        # - 1536 dimensions (OpenAI text-embedding-3-small per research.md)
+        # - 768 dimensions (Gemini text-embedding-004)
         # - Cosine distance (standard for semantic search)
         client.create_collection(
             collection_name=collection_name,
             vectors_config=VectorParams(
-                size=1536,  # OpenAI text-embedding-3-small dimension
+                size=768,  # Gemini text-embedding-004 dimension
                 distance=Distance.COSINE,
             ),
         )
 
         print(f"✅ Created collection '{collection_name}'")
-        print(f"   - Vectors: 1536 dimensions")
+        print(f"   - Vectors: 768 dimensions")
         print(f"   - Distance metric: Cosine")
         print(f"   - Storage capacity: 1GB (Free tier)")
         print(f"   - Expected usage: ~1.5MB for 230 chunks (0.15% of limit)")

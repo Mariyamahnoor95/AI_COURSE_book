@@ -5,9 +5,8 @@ python-multipart==0.0.12
 pydantic==2.9.2
 pydantic-settings==2.6.0
 
-# OpenAI Agents SDK (RAG backend logic)
-openai==1.54.0
-tiktoken==0.8.0
+# Google Gemini API (RAG backend logic)
+google-generativeai==0.8.3
 
 # ChatKit SDK (event streaming and frontend integration)
 # Note: ChatKit Python SDK to be added when available

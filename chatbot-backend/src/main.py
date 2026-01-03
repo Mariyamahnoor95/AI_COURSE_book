@@ -70,6 +70,11 @@ async def root():
     }
 
 
+# Import and register routers
+from .api.chatbot import router as chatbot_router
+app.include_router(chatbot_router)
+
+
 # Startup event
 @app.on_event("startup")
 async def startup_event():

@@ -2,7 +2,7 @@
 Vector Database Client (Qdrant)
 
 Implements insert, search, and delete operations for Qdrant collection.
-Collection name: "textbook_chunks" with 1536-dimensional vectors.
+Collection name: "textbook_chunks" with 768-dimensional vectors.
 
 Maps to: FR-017
 """
@@ -40,7 +40,7 @@ class VectorDBClient:
     """Qdrant vector database client for textbook content chunks"""
 
     COLLECTION_NAME = "textbook_chunks"
-    VECTOR_SIZE = 1536
+    VECTOR_SIZE = 768
     DISTANCE_METRIC = Distance.COSINE
 
     def __init__(
@@ -74,7 +74,7 @@ class VectorDBClient:
         Create textbook_chunks collection if it doesn't exist
 
         Collection configuration:
-        - Vector size: 1536 (text-embedding-3-small)
+        - Vector size: 768 (Gemini text-embedding-004)
         - Distance metric: Cosine similarity
         - On-disk payload storage for efficiency
         """
@@ -236,24 +236,25 @@ class VectorDBClient:
                 )
             query_filter = Filter(must=field_conditions)
 
-        # Search
-        search_result = self.client.search(
+        # Search using query_points (newer qdrant-client API)
+        search_result = self.client.query_points(
             collection_name=self.COLLECTION_NAME,
-            query_vector=query_embedding,
+            query=query_embedding,
             limit=top_k,
             score_threshold=score_threshold,
             query_filter=query_filter
         )
 
         # Convert to SearchResult objects
+        # query_points returns a QueryResponse with a 'points' attribute
         results = []
-        for hit in search_result:
+        for point in search_result.points:
             results.append(SearchResult(
-                chunk_id=hit.id,
-                score=hit.score,
-                content_text=hit.payload.get("content_text", ""),
+                chunk_id=str(point.id),
+                score=point.score,
+                content_text=point.payload.get("content_text", ""),
                 metadata={
-                    k: v for k, v in hit.payload.items()
+                    k: v for k, v in point.payload.items()
                     if k != "content_text"
                 }
             ))

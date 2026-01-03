@@ -83,7 +83,7 @@ class ContentChunker:
             List of ContentChunk objects with metadata
         """
         # Parse Markdown structure
-        sections = self._parse_sections(markdown_content)
+        sections = self._parse_sections(markdown_content, chapter_title)
 
         # Group sections into chunks
         chunks = []
@@ -170,9 +170,13 @@ class ContentChunker:
 
         return chunks
 
-    def _parse_sections(self, markdown_content: str) -> List[Dict[str, str]]:
+    def _parse_sections(self, markdown_content: str, chapter_title: str) -> List[Dict[str, str]]:
         """
         Parse Markdown into sections based on H2/H3 headings
+
+        Args:
+            markdown_content: Raw Markdown text
+            chapter_title: Chapter title for fallback heading
 
         Returns:
             List of dicts with 'heading', 'content', 'anchor' keys

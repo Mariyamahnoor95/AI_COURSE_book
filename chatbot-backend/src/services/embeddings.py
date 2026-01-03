@@ -1,15 +1,15 @@
 """
 Embedding Service
 
-Generates 1536-dimensional vectors using OpenAI text-embedding-3-small
-per research.md decisions.
+Generates embeddings using Google Gemini text-embedding-004 model
+(768 dimensions)
 
 Maps to: FR-016, FR-017
 """
 
 import os
 from typing import List
-from openai import OpenAI
+import google.generativeai as genai
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -17,25 +17,25 @@ load_dotenv()
 
 
 class EmbeddingService:
-    """Service for generating text embeddings using OpenAI API"""
+    """Service for generating text embeddings using Google Gemini API"""
 
     def __init__(self, api_key: str | None = None):
         """
         Initialize embedding service
 
         Args:
-            api_key: OpenAI API key (defaults to OPENAI_API_KEY env var)
+            api_key: Gemini API key (defaults to GEMINI_API_KEY env var)
         """
-        self.api_key = api_key or os.getenv("OPENAI_API_KEY")
+        self.api_key = api_key or os.getenv("GEMINI_API_KEY")
         if not self.api_key:
             raise ValueError(
-                "OpenAI API key required. Set OPENAI_API_KEY environment variable "
+                "Gemini API key required. Set GEMINI_API_KEY environment variable "
                 "or pass api_key parameter."
             )
 
-        self.client = OpenAI(api_key=self.api_key)
-        self.model = "text-embedding-3-small"  # 1536 dimensions
-        self.dimensions = 1536
+        genai.configure(api_key=self.api_key)
+        self.model_name = "models/text-embedding-004"
+        self.dimensions = 768  # Gemini embeddings are 768-dimensional
 
     def embed_text(self, text: str) -> List[float]:
         """
@@ -45,21 +45,22 @@ class EmbeddingService:
             text: Text to embed
 
         Returns:
-            List of 1536 float values representing the embedding
+            List of 768 float values representing the embedding
 
         Raises:
             ValueError: If text is empty
-            OpenAI API errors: If API request fails
+            Google API errors: If API request fails
         """
         if not text or not text.strip():
             raise ValueError("Text cannot be empty")
 
-        response = self.client.embeddings.create(
-            model=self.model,
-            input=text.strip()
+        result = genai.embed_content(
+            model=self.model_name,
+            content=text.strip(),
+            task_type="retrieval_document"
         )
 
-        embedding = response.data[0].embedding
+        embedding = result['embedding']
         assert len(embedding) == self.dimensions, (
             f"Expected {self.dimensions} dimensions, got {len(embedding)}"
         )
@@ -68,17 +69,17 @@ class EmbeddingService:
 
     def embed_batch(self, texts: List[str]) -> List[List[float]]:
         """
-        Generate embeddings for multiple texts in a single API call
+        Generate embeddings for multiple texts
 
         Args:
-            texts: List of texts to embed (max 2048 texts per batch)
+            texts: List of texts to embed
 
         Returns:
             List of embedding vectors, one per input text
 
         Raises:
             ValueError: If texts list is empty or contains empty strings
-            OpenAI API errors: If API request fails
+            Google API errors: If API request fails
         """
         if not texts:
             raise ValueError("Texts list cannot be empty")
@@ -88,21 +89,17 @@ class EmbeddingService:
         if not non_empty_texts:
             raise ValueError("All texts are empty")
 
-        # Check batch size limit
-        if len(non_empty_texts) > 2048:
-            raise ValueError(
-                f"Batch size {len(non_empty_texts)} exceeds OpenAI limit of 2048. "
-                "Split into smaller batches."
+        # Gemini can handle batch embedding
+        embeddings = []
+        for _, text in non_empty_texts:
+            result = genai.embed_content(
+                model=self.model_name,
+                content=text,
+                task_type="retrieval_document"
             )
-
-        # Get embeddings
-        response = self.client.embeddings.create(
-            model=self.model,
-            input=[t for _, t in non_empty_texts]
-        )
+            embeddings.append(result['embedding'])
 
         # Verify dimensions
-        embeddings = [item.embedding for item in response.data]
         for emb in embeddings:
             assert len(emb) == self.dimensions, (
                 f"Expected {self.dimensions} dimensions, got {len(emb)}"
@@ -121,15 +118,29 @@ class EmbeddingService:
 
     def embed_query(self, query: str) -> List[float]:
         """
-        Generate embedding for user query (alias for embed_text)
+        Generate embedding for user query
 
         Args:
             query: User query text
 
         Returns:
-            List of 1536 float values
+            List of 768 float values
         """
-        return self.embed_text(query)
+        if not query or not query.strip():
+            raise ValueError("Query cannot be empty")
+
+        result = genai.embed_content(
+            model=self.model_name,
+            content=query.strip(),
+            task_type="retrieval_query"  # Different task type for queries
+        )
+
+        embedding = result['embedding']
+        assert len(embedding) == self.dimensions, (
+            f"Expected {self.dimensions} dimensions, got {len(embedding)}"
+        )
+
+        return embedding
 
 
 # Convenience functions for direct usage
@@ -152,12 +163,12 @@ def embed_text(text: str) -> List[float]:
         text: Text to embed
 
     Returns:
-        1536-dimensional embedding vector
+        768-dimensional embedding vector
 
     Example:
         >>> embedding = embed_text("ROS 2 uses a publish-subscribe pattern")
         >>> len(embedding)
-        1536
+        768
     """
     service = get_embedding_service()
     return service.embed_text(text)
@@ -171,7 +182,7 @@ def embed_batch(texts: List[str]) -> List[List[float]]:
         texts: List of texts to embed
 
     Returns:
-        List of 1536-dimensional embedding vectors
+        List of 768-dimensional embedding vectors
 
     Example:
         >>> texts = ["ROS 2 basics", "Digital twin simulation"]
@@ -179,7 +190,7 @@ def embed_batch(texts: List[str]) -> List[List[float]]:
         >>> len(embeddings)
         2
         >>> len(embeddings[0])
-        1536
+        768
     """
     service = get_embedding_service()
     return service.embed_batch(texts)
@@ -193,7 +204,7 @@ def embed_query(query: str) -> List[float]:
         query: User query text
 
     Returns:
-        1536-dimensional embedding vector
+        768-dimensional embedding vector
     """
     service = get_embedding_service()
     return service.embed_query(query)
