@@ -58,7 +58,7 @@ class RAGService:
         genai.configure(api_key=api_key)
         self.model = genai.GenerativeModel('gemini-pro')
 
-        # System prompt for textbook-grounded responses
+        # System prompt for textbook-grounded responses (using gemini-pro)
         self.system_prompt = """You are a helpful teaching assistant for a Physical AI & Humanoid Robotics course.
 
 Your role:
