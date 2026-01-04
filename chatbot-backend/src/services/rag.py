@@ -56,6 +56,16 @@ class RAGService:
         if not api_key:
             raise ValueError("GEMINI_API_KEY environment variable not set")
         genai.configure(api_key=api_key)
+
+        # List available models to debug
+        print("🔍 Available Gemini models:")
+        try:
+            for model in genai.list_models():
+                if 'generateContent' in model.supported_generation_methods:
+                    print(f"   ✓ {model.name}")
+        except Exception as e:
+            print(f"   ❌ Error listing models: {e}")
+
         # Use gemini-1.0-pro (stable model)
         self.model = genai.GenerativeModel('gemini-1.0-pro')
 
