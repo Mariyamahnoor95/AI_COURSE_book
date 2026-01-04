@@ -56,7 +56,7 @@ class RAGService:
         if not api_key:
             raise ValueError("GEMINI_API_KEY environment variable not set")
         genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel('gemini-1.5-flash-latest')
+        self.model = genai.GenerativeModel('gemini-pro')
 
         # System prompt for textbook-grounded responses
         self.system_prompt = """You are a helpful teaching assistant for a Physical AI & Humanoid Robotics course.
