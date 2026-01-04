@@ -261,8 +261,8 @@ Please ask a question related to these course topics!"""
         context_parts = []
 
         for i, result in enumerate(search_results, 1):
-            chunk_text = result.payload.get("content_text", "")
-            metadata = result.payload.get("metadata", {})
+            chunk_text = result.content_text
+            metadata = result.metadata
 
             # Add source citation inline
             source = f"[Source {i}: {metadata.get('chapter_title', 'Unknown')} - {metadata.get('heading', 'Unknown')}]"

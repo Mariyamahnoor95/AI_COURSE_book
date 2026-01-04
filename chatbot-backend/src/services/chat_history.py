@@ -240,17 +240,23 @@ class ChatHistoryService:
         timestamp = datetime.utcnow()
 
         # Convert citations to JSON
-        citations_json = None
-        if citations:
-            citations_json = Json([
-                {
-                    "chunk_id": c.chunk_id,
-                    "chapter_title": c.chapter_title,
-                    "heading": c.heading,
-                    "url": c.url
-                }
-                for c in citations
-            ])
+        # For assistant messages, always use a JSON array (empty if no citations)
+        # For user messages, use NULL
+        if role == "assistant":
+            if citations:
+                citations_json = Json([
+                    {
+                        "chunk_id": c.chunk_id,
+                        "chapter_title": c.chapter_title,
+                        "heading": c.heading,
+                        "url": c.url
+                    }
+                    for c in citations
+                ])
+            else:
+                citations_json = Json([])  # Empty array instead of NULL
+        else:
+            citations_json = None  # NULL for user messages
 
         conn = self._get_connection()
         try:
