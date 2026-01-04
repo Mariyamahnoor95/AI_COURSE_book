@@ -205,11 +205,14 @@ async def chat(request: ChatRequest) -> ChatResponse:
         raise
 
     except Exception as e:
-        # Log error and return generic 500 response
-        print(f"Error processing chat request: {e}")
+        # Log error with full traceback and return detailed 500 response
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"❌ Error processing chat request: {e}")
+        print(f"📋 Full traceback:\n{error_details}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="An error occurred while processing your request. Please try again."
+            detail=f"Error: {str(e)}"
         )
 
 
