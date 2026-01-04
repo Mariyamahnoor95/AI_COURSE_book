@@ -56,7 +56,7 @@ class RAGService:
         if not api_key:
             raise ValueError("GEMINI_API_KEY environment variable not set")
         genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel('gemini-1.5-flash')
+        self.model = genai.GenerativeModel('gemini-1.5-flash-latest')
 
         # System prompt for textbook-grounded responses
         self.system_prompt = """You are a helpful teaching assistant for a Physical AI & Humanoid Robotics course.
@@ -325,16 +325,15 @@ Provide a clear answer with examples from the textbook above.""")
         citations = []
 
         for result in search_results:
-            payload = result.payload
-            metadata = payload.get("metadata", {})
+            metadata = result.metadata
 
             # Extract preview (first 200 chars)
-            content_preview = payload.get("content_text", "")[:200]
-            if len(payload.get("content_text", "")) > 200:
+            content_preview = result.content_text[:200]
+            if len(result.content_text) > 200:
                 content_preview += "..."
 
             citation = Citation(
-                chunk_id=str(result.id),
+                chunk_id=result.chunk_id,
                 chapter_title=metadata.get("chapter_title", "Unknown Chapter"),
                 heading=metadata.get("heading", "Unknown Section"),
                 url=f"{metadata.get('page_url', '')}{metadata.get('heading_anchor', '')}",
