@@ -343,11 +343,19 @@ Provide a clear answer with examples from the textbook above.""")
             if len(result.content_text) > 200:
                 content_preview += "..."
 
+            # Build full URL with GitHub Pages domain and base path
+            page_url = metadata.get('page_url', '')
+            # Remove duplicate anchor if page_url already has it
+            if '#' in page_url:
+                full_url = f"https://Mariyamahnoor95.github.io/AI_COURSE_book{page_url}"
+            else:
+                full_url = f"https://Mariyamahnoor95.github.io/AI_COURSE_book{page_url}{metadata.get('heading_anchor', '')}"
+
             citation = Citation(
                 chunk_id=result.chunk_id,
                 chapter_title=metadata.get("chapter_title", "Unknown Chapter"),
                 heading=metadata.get("heading", "Unknown Section"),
-                url=f"{metadata.get('page_url', '')}{metadata.get('heading_anchor', '')}",
+                url=full_url,
                 chunk_preview=content_preview
             )
             citations.append(citation)
