@@ -66,8 +66,8 @@ class RAGService:
         except Exception as e:
             print(f"   ❌ Error listing models: {e}")
 
-        # Use gemini-1.0-pro (stable model)
-        self.model = genai.GenerativeModel('gemini-1.0-pro')
+        # Use gemini-flash-latest (automatically uses latest stable Flash model)
+        self.model = genai.GenerativeModel('gemini-flash-latest')
 
         # System prompt for textbook-grounded responses (using gemini-pro)
         self.system_prompt = """You are a helpful teaching assistant for a Physical AI & Humanoid Robotics course.
